@@ -1,6 +1,5 @@
 package com.kiabus;
 
-import io.vertx.core.Vertx;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
@@ -21,19 +20,6 @@ public class EventBusPlusWebSocketConfig implements ApplicationContextAware {
   @ConditionalOnMissingBean
   public ServerEndpointExporter serverEndpointExporter() {
     return new ServerEndpointExporter();
-  }
-
-  @Bean
-  @ConditionalOnMissingBean
-  public Vertx vertx() {
-    Vertx vertx = Vertx.vertx();
-//    vertx.setPeriodic(1000, ar -> {
-//      vertx.eventBus().publish("abcd", System.currentTimeMillis());
-//    });
-    vertx.eventBus().consumer("abcd-1", h -> log.info("Received message: {}", h.body()));
-    vertx.eventBus().consumer("abcd-2", h -> log.info("Received message: {}", h.body()));
-
-    return vertx;
   }
 
   @Override

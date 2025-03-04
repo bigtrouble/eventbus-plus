@@ -33,8 +33,12 @@ function EventBus(url) {
     this.socket = new WebSocket(this._toWS(url))
     this.socket.addEventListener('open',  () => this.state = EventBus.OPEN)
     this.socket.addEventListener('message', async evt => {
-        // console.log('received message:', evt.data)
+
         const msg = JSON.parse(evt.data)
+
+        if (msg.type === 'pong') {
+          return
+        }
 
         if (msg.type === 'done') {
             console.log('[eventbus] received connection done flag.')
@@ -186,16 +190,12 @@ EventBus.prototype.removeEventListener = function (type, callback) {
  * Send a message
  *
  * @param {String} address
- * @param {Object} message
+ * @param {Object} body
  * @param {Object} [headers]
  */
 EventBus.prototype.send = function (address, body, headers) {
   if (this.state !== EventBus.OPEN) {
     throw new Error('INVALID_STATE_ERR');
-  }
-  if (typeof headers === 'function') {
-    callback = headers;
-    headers = {};
   }
   let envelope = {
     type: 'send',
@@ -211,7 +211,7 @@ EventBus.prototype.send = function (address, body, headers) {
  * Request a message
  *
  * @param {String} address
- * @param {Object} message
+ * @param {Object} body
  * @param {Object} [headers]
  * @param {Function} callback
  */
@@ -255,7 +255,7 @@ EventBus.prototype.request = function (address, body, headers, callback) {
  * Publish a message
  *
  * @param {String} address
- * @param {Object} message
+ * @param {Object} body
  * @param {Object} [headers]
  */
  EventBus.prototype.publish = function (address, body, headers) {
