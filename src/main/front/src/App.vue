@@ -64,7 +64,7 @@ async function requestMessage() {
 
 onMounted(() => {
   const loc = window.location;
-  eb = new EventBus(loc.href + "kiabus/eventbus")
+  eb = new EventBus(loc.href + "eventbus")
   eb.addEventListener('open', () => {
     console.log("eventbus connected!")
 

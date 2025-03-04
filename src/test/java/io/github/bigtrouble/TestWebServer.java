@@ -1,17 +1,24 @@
 package io.github.bigtrouble;
 
 import io.vertx.core.Vertx;
+import lombok.NonNull;
 import lombok.val;
+import org.springframework.beans.BeansException;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
+import org.springframework.web.socket.config.annotation.EnableWebSocket;
+import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
+import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
 @SpringBootApplication(scanBasePackageClasses = {
   TestWebServer.class,
-  EventBusPlusWebSocketConfig.class
 })
 public class TestWebServer extends WebMvcConfigurationSupport {
 
@@ -22,6 +29,26 @@ public class TestWebServer extends WebMvcConfigurationSupport {
   public static void main(String[] args) {
     SpringApplication.run(TestWebServer.class, args);
   }
+
+
+  @Configuration
+  @EnableWebSocket
+  public static class MyWebSocketConfig implements WebSocketConfigurer, ApplicationContextAware {
+
+    private ApplicationContext applicationContext;
+
+    @Override
+    public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
+      registry.addHandler(new EventBusPlusWSHandler(() -> this.applicationContext), "/eventbus")//设置连接路径和处理
+        .setAllowedOrigins("*");
+    }
+
+    @Override
+    public void setApplicationContext(@NonNull ApplicationContext applicationContext) throws BeansException {
+      this.applicationContext = applicationContext;
+    }
+  }
+
 
   @Bean
   public Vertx getVertx() {

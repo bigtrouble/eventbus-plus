@@ -1,29 +1,30 @@
 package io.github.bigtrouble;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.eventbus.MessageConsumer;
-import jakarta.websocket.OnClose;
-import jakarta.websocket.OnMessage;
-import jakarta.websocket.OnOpen;
-import jakarta.websocket.Session;
-import jakarta.websocket.server.ServerEndpoint;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import org.springframework.stereotype.Component;
+import org.springframework.context.ApplicationContext;
+import org.springframework.lang.NonNull;
+import org.springframework.web.socket.CloseStatus;
+import org.springframework.web.socket.TextMessage;
+import org.springframework.web.socket.WebSocketSession;
+import org.springframework.web.socket.handler.AbstractWebSocketHandler;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.function.Supplier;
+
 
 @Slf4j
-@Component
-@ServerEndpoint(value = "/kiabus/eventbus")
-public class EventBusPlusWebSocketHandler {
+@RequiredArgsConstructor
+public class EventBusPlusWSHandler extends AbstractWebSocketHandler {
 
   private static final ObjectMapper om = new ObjectMapper();
   static {
@@ -32,18 +33,21 @@ public class EventBusPlusWebSocketHandler {
   private static final Map<String, Map<String, MessageConsumer<?>>> sessionHolder = new ConcurrentHashMap<>();
   private static final ConcurrentMap<String, Message<Object>> localReplyHolderMap = new ConcurrentHashMap<>();
 
+  private final Supplier<ApplicationContext> applicationContext;
+
   private EventBus eb() {
-    val vertx = SpringUtil.getApplicationContext().getBean(Vertx.class);
+    val vertx = applicationContext.get().getBean(Vertx.class);
     return vertx.eventBus();
   }
 
-  @OnOpen
-  public void onOpen(Session session) {
+  @Override
+  public void afterConnectionEstablished(@NonNull WebSocketSession session) {
     sendMessage(session, EventBusMessage.DONE);
   }
 
-  @OnMessage
-  public void onMessage(Session session, String json) throws JsonProcessingException {
+  @Override
+  public void handleTextMessage(@NonNull WebSocketSession session, TextMessage message) throws Exception {
+    val json = message.getPayload();
     val ebMessage = om.readValue(json, EventBusMessage.class);
     switch (ebMessage.getType()) {
       case "ping" -> sendMessage(session, EventBusMessage.PONG);
@@ -56,8 +60,8 @@ public class EventBusPlusWebSocketHandler {
   }
 
 
-  @OnClose
-  public void onClose(Session session) {
+  @Override
+  public void afterConnectionClosed(WebSocketSession session, @NonNull CloseStatus closeStatus) {
     val consumers = sessionHolder.remove(session.getId());
     if (consumers != null) {
       consumers.values().forEach(c -> {
@@ -73,7 +77,7 @@ public class EventBusPlusWebSocketHandler {
    * @param session Session
    * @param msg     EventBusMessage
    */
-  private void onSendMessage(Session session, EventBusMessage msg) {
+  private void onSendMessage(WebSocketSession session, EventBusMessage msg) {
     val address = msg.getAddress();
     val body = msg.getBody();
     val replyAddress = msg.getReplyAddress();
@@ -99,7 +103,7 @@ public class EventBusPlusWebSocketHandler {
    * @param session Session
    * @param address Address
    */
-  private void onUnRegister(Session session, String address) {
+  private void onUnRegister(WebSocketSession session, String address) {
     val map = sessionHolder.get(session.getId());
     if (map == null) {
       log.error("sessionHolder does not contain session {}", session);
@@ -119,7 +123,7 @@ public class EventBusPlusWebSocketHandler {
    * @param session Session
    * @param msg     EventBusMessage
    */
-  private void onRegister(Session session, EventBusMessage msg) {
+  private void onRegister(WebSocketSession session, EventBusMessage msg) {
     val address = msg.getAddress();
     val trackId = msg.getTrackId();
     val c = eb().consumer(address);
@@ -139,7 +143,7 @@ public class EventBusPlusWebSocketHandler {
   }
 
 
-  private void deliverMessage(Session session, String address, boolean isReply, io.vertx.core.eventbus.Message<Object> h) {
+  private void deliverMessage(WebSocketSession session, String address, boolean isReply, Message<Object> h) {
     val msg = new EventBusMessage();
     if (isReply) {
       msg.setReplyAddress(address);
@@ -156,7 +160,7 @@ public class EventBusPlusWebSocketHandler {
   }
 
 
-  private void deliverErrorMessage(Session session, String address, Throwable e) {
+  private void deliverErrorMessage(WebSocketSession session, String address, Throwable e) {
     log.info("todo");
   }
 
@@ -165,9 +169,9 @@ public class EventBusPlusWebSocketHandler {
    * @param session Session
    * @param msg     EventBusMessage
    */
-  private void sendMessage(Session session, EventBusMessage msg) {
+  private void sendMessage(WebSocketSession session, EventBusMessage msg) {
     try {
-      session.getBasicRemote().sendText(om.writeValueAsString(msg));
+      session.sendMessage(new TextMessage(om.writeValueAsString(msg)));
     } catch (Exception e) {
       log.error("Error sending message.", e);
     }

@@ -29,7 +29,7 @@ export default defineConfig({
   },
   server:{
     proxy: {
-      '/kiabus/eventbus': {
+      '/eventbus': {
         target: 'http://localhost:49090',
         changeOrigin: true,
         ws: true
