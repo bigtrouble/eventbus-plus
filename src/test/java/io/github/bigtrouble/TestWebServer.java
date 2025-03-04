@@ -1,4 +1,4 @@
-package com.kiabus;
+package io.github.bigtrouble;
 
 import io.vertx.core.Vertx;
 import lombok.val;

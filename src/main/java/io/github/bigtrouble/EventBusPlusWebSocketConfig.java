@@ -1,4 +1,4 @@
-package com.kiabus;
+package io.github.bigtrouble;
 
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;

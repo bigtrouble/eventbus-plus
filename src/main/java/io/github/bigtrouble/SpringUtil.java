@@ -1,4 +1,4 @@
-package com.kiabus;
+package io.github.bigtrouble;
 
 import lombok.Getter;
 import lombok.Setter;

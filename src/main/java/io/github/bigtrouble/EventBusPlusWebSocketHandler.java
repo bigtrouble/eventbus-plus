@@ -1,4 +1,4 @@
-package com.kiabus;
+package io.github.bigtrouble;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;

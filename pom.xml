@@ -4,15 +4,18 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>com.kiabus</groupId>
+  <groupId>io.github.bigtrouble</groupId>
   <artifactId>eventbus-plus</artifactId>
+  <name>eventbus-plus</name>
   <version>0.1.0</version>
-
+  <url>https://github.com/bigtrouble/eventbus-plus</url>
   <properties>
     <maven.compiler.source>17</maven.compiler.source>
     <maven.compiler.target>17</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
+
+  <description>An extension of vertx eventbus.</description>
 
   <dependencies>
 
@@ -52,5 +55,40 @@
     </dependency>
 
   </dependencies>
+
+  <scm>
+    <url>https://github.com/bigtrouble/eventbus-plus</url>
+    <connection>scm:git:https://github.com/bigtrouble/eventbus-plus.git</connection>
+    <developerConnection>scm:git:https://github.com/bigtrouble/eventbus-plus.git</developerConnection>
+  </scm>
+
+  <distributionManagement>
+    <snapshotRepository>
+      <id>central</id>
+      <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
+    </snapshotRepository>
+    <repository>
+      <id>central</id>
+      <url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+    </repository>
+  </distributionManagement>
+
+  <developers>
+    <developer>
+      <id>bigtrouble</id>
+      <name>bigtrouble</name>
+      <email>hcmsxy@163.com</email>
+      <url>https://github.com/bigtrouble/eventbus-plus</url>
+      <timezone>+8</timezone>
+    </developer>
+  </developers>
+
+  <licenses>
+    <license>
+      <name>The Apache Software License, Version 2.0</name>
+      <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+    </license>
+  </licenses>
+
 
 </project>
