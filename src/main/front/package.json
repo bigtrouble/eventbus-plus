@@ -1,18 +1,28 @@
 {
-  "name": "front",
-  "version": "0.0.0",
-  "private": true,
+  "name": "eventbus-plus",
+  "version": "0.1.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview"
   },
-  "dependencies": {
-    "view-ui-plus": "^1.3.19",
-    "vue": "^3.5.13"
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bigtrouble/eventbus-plus.git"
   },
+  "author": {
+    "name": "bigtrouble",
+    "email": "hcmsxy@163.com"
+  },
+  "bugs": {
+    "url": "https://github.com/bigtrouble/eventbus-plus/issues"
+  },
+  "homepage": "https://github.com/bigtrouble/eventbus-plus#readme",
+  "license": "Apache-2.0",
   "devDependencies": {
+    "view-ui-plus": "^1.3.19",
+    "vue": "^3.5.13",
     "@vitejs/plugin-vue": "^5.2.1",
     "vite": "^6.1.0",
     "vite-plugin-vue-devtools": "^7.7.2"
